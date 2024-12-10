@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import { GoveeClient } from "./client.js";
-import { cylinderFloorLamp } from "./devices.js";
+import { devices } from "./devices.js";
 
 config();
 
@@ -12,71 +12,100 @@ if (!API_KEY) {
 
 const client = new GoveeClient(API_KEY);
 
+function formatDeviceState(state: any) {
+  if (!state?.payload?.capabilities) {
+    throw new Error("Invalid device state response");
+  }
+
+  const capabilities = state.payload.capabilities;
+
+  const powerState = capabilities.find(
+    (cap: any) =>
+      cap.type === "devices.capabilities.on_off" &&
+      cap.instance === "powerSwitch"
+  );
+  const brightness = capabilities.find(
+    (cap: any) =>
+      cap.type === "devices.capabilities.range" && cap.instance === "brightness"
+  );
+  const colorTemp = capabilities.find(
+    (cap: any) =>
+      cap.type === "devices.capabilities.color_setting" &&
+      cap.instance === "colorTemperatureK"
+  );
+  const color = capabilities.find(
+    (cap: any) =>
+      cap.type === "devices.capabilities.color_setting" &&
+      cap.instance === "colorRgb"
+  );
+  const online = capabilities.find(
+    (cap: any) =>
+      cap.type === "devices.capabilities.online" && cap.instance === "online"
+  );
+
+  return {
+    power: powerState?.state?.value === 1,
+    brightness: brightness?.state?.value,
+    colorTemp: colorTemp?.state?.value,
+    color: color?.state?.value,
+    online: online?.state?.value ?? false,
+  };
+}
+
 async function setDaytimeMode() {
   try {
-    console.log("Setting Cylinder Floor Lamp to daytime mode...");
+    const deviceName = "cylinderFloorLamp";
+    const device = devices[deviceName];
+
+    if (!device) {
+      throw new Error(`Device ${deviceName} not found`);
+    }
+
+    console.log(`Setting ${deviceName} to daytime mode...`);
 
     // Turn on the device
-    await client.turnDevice(
-      cylinderFloorLamp.device,
-      cylinderFloorLamp.sku,
-      true
-    );
+    await client.turnDevice(device.device, device.sku, true);
 
     // Set brightness
-    await client.setBrightness(
-      cylinderFloorLamp.device,
-      cylinderFloorLamp.sku,
-      18
-    );
+    await client.setBrightness(device.device, device.sku, 18);
 
     // Set color temperature
-    await client.setColorTemperature(
-      cylinderFloorLamp.device,
-      cylinderFloorLamp.sku,
-      3800
-    );
+    await client.setColorTemperature(device.device, device.sku, 3800);
+
+    console.log("Waiting 2 seconds for device to update...");
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Verify final state
-    const stateResponse = await client.getDeviceState(
-      cylinderFloorLamp.device,
-      cylinderFloorLamp.sku
-    );
-    
-    const powerState = stateResponse.payload.capabilities.find(
-      cap => cap.type === "powerSwitch"
-    );
-    const brightness = stateResponse.payload.capabilities.find(
-      cap => cap.type === "brightness"
-    );
-    const colorTemp = stateResponse.payload.capabilities.find(
-      cap => cap.type === "colorTemperature"
-    );
+    const state = await client.getDeviceState(device.device, device.sku);
+    const formattedState = formatDeviceState(state);
+
+    console.log("Current state:", formattedState);
 
     if (
-      powerState?.state.value === true &&
-      brightness?.state.value === 18 &&
-      colorTemp?.state.value === 3800
+      formattedState.power &&
+      formattedState.brightness === 18 &&
+      formattedState.colorTemp === 3800
     ) {
       console.log("Successfully set daytime mode");
     } else {
-      console.log("Warning: Some settings might not have been applied correctly");
+      console.log(
+        "Warning: Some settings might not have been applied correctly"
+      );
       console.log("Expected: power=true, brightness=18, colorTemp=3800");
-      console.log("Actual:", {
-        power: powerState?.state.value,
-        brightness: brightness?.state.value,
-        colorTemp: colorTemp?.state.value,
-      });
+      console.log("Actual:", formattedState);
     }
   } catch (error) {
-    console.error("Error setting daytime mode:", error);
+    console.error("Error occurred:");
     if (error instanceof Error) {
-      console.error("- Message:", error.message);
-      console.error("- Stack:", error.stack);
+      console.error("Message:", error.message);
+      console.error("Stack:", error.stack);
     } else {
-      console.error("- Unknown error:", error);
+      console.error("Unknown error:", error);
     }
+    process.exit(1);
   }
 }
+
+await setDaytimeMode();
 
 export { setDaytimeMode };
