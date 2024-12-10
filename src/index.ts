@@ -14,28 +14,35 @@ if (!API_KEY) {
 
 const client = new GoveeClient(API_KEY);
 
-function formatDeviceState(state: DeviceStateResponse) {
-  const powerState = state.payload.capabilities.find(
-    (cap) => cap.type === "devices.capabilities.on_off" && cap.instance === "powerSwitch"
+function formatDeviceState(state: any) {
+  if (!state?.payload?.capabilities) {
+    throw new Error("Invalid device state response");
+  }
+
+  const capabilities = state.payload.capabilities;
+  
+  const powerState = capabilities.find(
+    (cap: any) => cap.type === "devices.capabilities.on_off" && cap.instance === "powerSwitch"
   );
-  const brightness = state.payload.capabilities.find(
-    (cap) => cap.type === "devices.capabilities.range" && cap.instance === "brightness"
+  const brightness = capabilities.find(
+    (cap: any) => cap.type === "devices.capabilities.range" && cap.instance === "brightness"
   );
-  const colorTemp = state.payload.capabilities.find(
-    (cap) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorTemperatureK"
+  const colorTemp = capabilities.find(
+    (cap: any) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorTemperatureK"
   );
-  const color = state.payload.capabilities.find(
-    (cap) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorRgb"
+  const color = capabilities.find(
+    (cap: any) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorRgb"
+  );
+  const online = capabilities.find(
+    (cap: any) => cap.type === "devices.capabilities.online" && cap.instance === "online"
   );
 
   return {
-    power: powerState?.state.value === 1,
-    brightness: brightness?.state.value,
-    colorTemp: colorTemp?.state.value,
-    color: color?.state.value,
-    online: state.payload.capabilities.find(
-      (cap) => cap.type === "devices.capabilities.online"
-    )?.state.value,
+    power: powerState?.state?.value === 1,
+    brightness: brightness?.state?.value,
+    colorTemp: colorTemp?.state?.value,
+    color: color?.state?.value,
+    online: online?.state?.value ?? false,
   };
 }
 
@@ -52,6 +59,7 @@ async function getDeviceState(deviceName: string) {
     `Getting state for device: ${deviceName} (${device.device}, ${device.sku})`
   );
   const state = await client.getDeviceState(device.device, device.sku);
+  console.log("Raw API Response:", JSON.stringify(state, null, 2));
   return formatDeviceState(state);
 }
 

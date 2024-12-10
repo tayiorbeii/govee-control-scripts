@@ -22,14 +22,17 @@ export class GoveeClient {
       headers: {
         "Govee-API-Key": this.apiKey,
         "Content-Type": "application/json",
-        Accept: "application/json",
         ...options.headers,
       },
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${JSON.stringify(
+          errorData
+        )}`
+      );
     }
 
     const data = (await response.json()) as T;
@@ -39,7 +42,7 @@ export class GoveeClient {
   async getDevices(): Promise<GoveeDevice[]> {
     try {
       const response = await this.request<GoveeResponse>(
-        "/v2/devices"
+        "/router/api/v1/users/devices"
       );
       return response.data;
     } catch (error) {
@@ -50,17 +53,20 @@ export class GoveeClient {
 
   async getDeviceState(
     device: string,
-    sku: string
+    model: string
   ): Promise<DeviceStateResponse> {
     try {
       const response = await this.request<DeviceStateResponse>(
-        `/v2/devices/state`,
+        "/router/api/v1/device/state",
         {
-          method: "GET",
-          headers: {
-            device,
-            model: sku,
-          },
+          method: "POST",
+          body: JSON.stringify({
+            requestId: crypto.randomUUID(),
+            payload: {
+              device,
+              sku: model,
+            },
+          }),
         }
       );
       return response;
@@ -83,7 +89,6 @@ export class GoveeClient {
       interface ControlResponse {
         code: number;
         message: string;
-        requestId: string;
       }
 
       const response = await this.request<ControlResponse>(
@@ -98,9 +103,9 @@ export class GoveeClient {
               capability: {
                 type: command.type,
                 instance: command.instance,
-                value: command.value
-              }
-            }
+                value: command.value,
+              },
+            },
           }),
         }
       );
@@ -114,7 +119,7 @@ export class GoveeClient {
     }
   }
 
-  // Helper methods
+  // Helper methods with correct capability types
   async turnDevice(device: string, sku: string, power: boolean): Promise<void> {
     return this.controlDevice(device, sku, {
       type: "devices.capabilities.on_off",
@@ -148,7 +153,7 @@ export class GoveeClient {
     if ([r, g, b].some((v) => v < 0 || v > 255)) {
       throw new Error("RGB values must be between 0 and 255");
     }
-    const rgb = (r << 16) | (g << 8) | b;
+    const rgb = ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
     return this.controlDevice(device, sku, {
       type: "devices.capabilities.color_setting",
       instance: "colorRgb",
