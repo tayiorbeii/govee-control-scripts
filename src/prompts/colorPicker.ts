@@ -13,10 +13,11 @@ export default async function colorPicker({ message, deviceName }: ColorPickerOp
   const currentColor = deviceName ? await colorManager.getCurrentColor(deviceName) : undefined;
   const favoriteColors = colorManager.getFavoriteColors();
 
-  const { color } = await inquirer.prompt([
+  // First prompt to choose from list or custom
+  const { colorChoice } = await inquirer.prompt([
     {
       type: 'list',
-      name: 'color',
+      name: 'colorChoice',
       message,
       choices: [
         new inquirer.Separator('= Current Color ='),
@@ -35,17 +36,23 @@ export default async function colorPicker({ message, deviceName }: ColorPickerOp
           value: 'custom'
         }
       ]
-    },
-    {
-      type: 'input',
-      name: 'color',
-      message: 'Enter hex color (e.g. #FF0000):',
-      when: (answers) => answers.color === 'custom',
-      validate: (input) => {
-        return /^#[0-9A-Fa-f]{6}$/.test(input) || 'Please enter a valid hex color (e.g. #FF0000)';
-      }
     }
   ]);
 
-  return color;
+  // If custom was selected, prompt for hex color
+  if (colorChoice === 'custom') {
+    const { customColor } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'customColor',
+        message: 'Enter hex color (e.g. #FF0000):',
+        validate: (input) => {
+          return /^#[0-9A-Fa-f]{6}$/.test(input) || 'Please enter a valid hex color (e.g. #FF0000)';
+        }
+      }
+    ]);
+    return customColor;
+  }
+
+  return colorChoice;
 } 
