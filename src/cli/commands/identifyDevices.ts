@@ -48,9 +48,9 @@ function formatDeviceState(state: DeviceStateResponse) {
     power: powerState?.state?.value === 1,
     brightness: brightness?.state?.value,
     colorTemp: colorTemp?.state?.value,
-    ...(color?.state?.value && {
-      color: `#${color.state.value.toString(16).padStart(6, "0")}`,
-    }),
+    color: !color?.state?.value || color.state.value === 0 
+      ? "#ffffff" 
+      : `#${color.state.value.toString(16).padStart(6, "0")}`,
   };
 }
 

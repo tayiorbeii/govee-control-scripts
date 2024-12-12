@@ -5,60 +5,49 @@ CLI tool for controlling Govee devices.
 ## Project Structure
 
 ```
-src/
-├── cli/              # CLI-related code
-│   ├── commands/     # Individual CLI commands
-│   └── index.ts      # CLI entry point
-├── config/           # Configuration files
-├── services/         # Core services
-│   ├── GoveeApiService.ts
-│   ├── GoveeControlService.ts
-│   └── ColorService.ts
-├── types/           # TypeScript type definitions
-├── utils/           # Utility functions and constants
-└── index.ts         # Main entry point
+.
+├── src/             # Source code
+│   ├── cli/         # CLI-related code
+│   │   └── commands/# Individual CLI commands
+│   ├── config/      # Configuration files
+│   ├── services/    # Core services
+│   ├── types/       # TypeScript type definitions
+│   ├── utils/       # Utility functions
+│   └── index.ts     # Main entry point
+├── dist/            # Compiled JavaScript output
+├── colors.json      # Color presets configuration
+├── package.json     # Project dependencies and scripts
+└── tsconfig.json    # TypeScript configuration
 ```
 
 ## Installation
 
-To install the package globally:
+1. Clone the repository
+2. Install dependencies:
+```bash
+npm install
+```
 
+3. Build the project:
+```bash
+npm run build
+```
+
+4. Install globally:
 ```bash
 npm install -g .
 ```
 
 This will make the `govee` command available system-wide.
 
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run in development mode with auto-reload
-npm run dev
-
-# Build the project
-npm run build
-
-# Format code
-npm run format
-
-# Lint code
-npm run lint
-```
-
 ## Configuration
 
-Create a `.env` file in your project root with your Govee API key:
-
+1. Create a `.env` file in your project root and add your Govee API key:
 ```
 GOVEE_API_KEY=your_api_key_here
 ```
 
-### Setting Up Your Devices
-
-1. First, identify your devices by running:
+2. Set up your devices:
 ```bash
 govee identify
 ```
@@ -68,13 +57,13 @@ This will:
 - Save the device list to `src/config/devices.json`
 - Save current device states to `src/config/saved-states.json`
 
-2. Update `src/config/devices.ts` with your device configurations:
+3. Update your device configurations in `src/config/devices.ts`:
 ```typescript
 export const devices = {
-  "livingRoomLamp": {  // This is your custom device name
-    device: "XX:XX:XX:XX:XX:XX:XX:XX",  // From devices.json
-    deviceName: "Living Room Lamp",      // Your friendly name
-    sku: "H6159",                        // From devices.json
+  "livingRoomLamp": {  // Your custom device name
+    device: "XX:XX:XX:XX:XX:XX:XX:XX",  // MAC address from devices.json
+    deviceName: "Living Room Lamp",      // Friendly name
+    sku: "H6159",                        // Model number from devices.json
   },
   // Add more devices as needed
 };
@@ -82,18 +71,22 @@ export const devices = {
 
 ## Usage
 
-Once installed, you can run the following commands from any directory:
+After 
 
 ```bash
 # List devices
 govee list
 
+# Save current states of all devices
+govee save
+
 # Start interactive mode
 govee interactive
 
-# Turn devices on/off
-govee on <device-name>
-govee off <device-name>
+# State Management
+govee save                               # Save current states of all devices
+govee interactive                        # Start interactive control mode
+```
 
 # Set brightness (0-100)
 govee brightness <device-name> <level>
@@ -103,9 +96,5 @@ govee temperature <device-name> <temp>
 
 # Set color (hex)
 govee color <device-name> <hex-color>
-
-# Save current states of all devices
-govee save
 ```
 
-Device names and their configurations are stored in `src/config/devices.json`. Preset configurations can be found in `src/config/presets.json`.
