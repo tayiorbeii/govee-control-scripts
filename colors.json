@@ -1,31 +1,47 @@
 {
   "currentColors": {
-    "cylinderFloorLamp": "#a63700"
+    "cylinderFloorLamp": "#330000"
   },
   "favoriteColors": [
     {
-      "name": "Warm White",
-      "hex": "#FFE5CC"
-    },
-    {
-      "name": "Cool White",
+      "name": "Morning Energize",
       "hex": "#F5F5F5"
     },
     {
-      "name": "Soft White",
-      "hex": "#F4EBD9"
+      "name": "Daytime Focus",
+      "hex": "#E6F3FF"
     },
     {
-      "name": "Reading",
+      "name": "Afternoon Calm",
+      "hex": "#FFE5CC"
+    },
+    {
+      "name": "Evening Relax",
+      "hex": "#FFD1B3"
+    },
+    {
+      "name": "Night Reading",
+      "hex": "#FFB38F"
+    },
+    {
+      "name": "Night Computer",
+      "hex": "#4D0000"
+    },
+    {
+      "name": "Late Night Dim",
+      "hex": "#330000"
+    },
+    {
+      "name": "Meditation",
       "hex": "#FFE0B3"
     },
     {
-      "name": "Relaxing",
-      "hex": "#FFD700"
+      "name": "Deep Focus",
+      "hex": "#CCE6FF"
     },
     {
-      "name": "Evening",
-      "hex": "#FFA07A"
+      "name": "Creative Mode",
+      "hex": "#FFD700"
     }
   ]
 }

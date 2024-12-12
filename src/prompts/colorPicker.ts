@@ -32,6 +32,12 @@ const interactiveColorPicker = createPrompt<string, ColorPickerOptions>((config,
       return;
     }
 
+    if (key.name === 'escape') {
+      setState({ ...state, status: 'done' });
+      done('');
+      return;
+    }
+
     if (key.name === 'left') {
       const newHue = (state.hue - 10 + 360) % 360;
       const newRgb = hsvToRgb(newHue, state.saturation, state.value);
@@ -78,21 +84,33 @@ export default async function colorPicker({ message, deviceName }: ColorPickerOp
     const currentColor = deviceName ? await colorManager.getCurrentColor(deviceName) : undefined;
     const favoriteColors = colorManager.getFavoriteColors();
 
+    const mainMenuChoices = [
+      { name: 'Interactive Color Picker', value: 'interactive' },
+      { name: 'Choose from List', value: 'list' },
+      { name: 'Enter Hex Code', value: 'hex' },
+      new inquirer.Separator(),
+      { name: 'Exit', value: 'exit' }
+    ];
+
     const { selectionType } = await inquirer.prompt([
       {
         type: 'list',
         name: 'selectionType',
         message: 'How would you like to select a color?',
-        choices: [
-          { name: 'Interactive Color Picker', value: 'interactive' },
-          { name: 'Choose from List', value: 'list' },
-          { name: 'Enter Hex Code', value: 'hex' }
-        ]
+        choices: mainMenuChoices
       }
     ]);
 
+    if (selectionType === 'exit') {
+      return 'CURRENT_COLOR';
+    }
+
     if (selectionType === 'interactive') {
-      return await interactiveColorPicker({ message });
+      const color = await interactiveColorPicker({ 
+        message: `${message}\nPress Esc to go back` 
+      });
+      if (color === '') return colorPicker({ message, deviceName });
+      return color;
     }
 
     if (selectionType === 'hex') {
@@ -100,12 +118,14 @@ export default async function colorPicker({ message, deviceName }: ColorPickerOp
         {
           type: 'input',
           name: 'customColor',
-          message: 'Enter hex color (e.g. #FF0000):',
+          message: 'Enter hex color (e.g. #FF0000) or press Enter to go back:',
           validate: (input: string) => {
+            if (input === '') return true;
             return /^#[0-9A-Fa-f]{6}$/.test(input) || 'Please enter a valid hex color (e.g. #FF0000)';
           }
         }
       ]);
+      if (customColor === '') return colorPicker({ message, deviceName });
       return customColor;
     }
 
@@ -116,20 +136,25 @@ export default async function colorPicker({ message, deviceName }: ColorPickerOp
         name: 'colorChoice',
         message,
         choices: [
-          new inquirer.Separator('= Current Color ='),
-          ...(currentColor ? [{
-            name: `Current: ${chalk.hex(currentColor)('■■■■')} ${currentColor}`,
-            value: currentColor
-          }] : []),
+          ...(currentColor ? [
+            new inquirer.Separator('= Current Color ='),
+            {
+              name: `Current: ${chalk.hex(currentColor)('■■■■')} ${currentColor}`,
+              value: currentColor
+            }
+          ] : []),
           new inquirer.Separator('= Favorite Colors ='),
           ...favoriteColors.map((c: { name: string; hex: string }) => ({
             name: `${chalk.hex(c.hex)('■■■■')} ${c.name} (${c.hex})`,
             value: c.hex
-          }))
+          })),
+          new inquirer.Separator(),
+          { name: 'Go Back', value: 'back' }
         ]
       }
     ]);
 
+    if (colorChoice === 'back') return colorPicker({ message, deviceName });
     return colorChoice;
   } catch (error) {
     console.error('Error in color picker:', error);

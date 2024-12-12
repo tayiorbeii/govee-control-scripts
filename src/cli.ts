@@ -94,7 +94,9 @@ async function interactiveControl() {
           message: 'Choose a color for the device:',
           deviceName 
         });
-        await setColor(deviceName, selectedColor);
+        if (selectedColor !== 'CURRENT_COLOR') {
+          await setColor(deviceName, selectedColor);
+        }
         break;
       case 'temperature':
         const temperature = await promptForValue('temperature');
