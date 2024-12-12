@@ -1,0 +1,14 @@
+{
+  "cylNight": {
+    "color": "#4D0000",
+    "brightness": 30
+  },
+  "daylight": {
+    "temperature": 5500,
+    "brightness": 100
+  },
+  "warmEvening": {
+    "temperature": 2700,
+    "brightness": 50
+  }
+} 

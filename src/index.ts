@@ -1,8 +1,8 @@
 import { config } from "dotenv";
 import { DeviceStateResponse } from "./types.js";
 import { GoveeClient } from "./client.js";
-import { turnOn, turnOff } from "./goveeControl.js";
 import { devices } from "./devices.js";
+import "./cli.js";  // Import the CLI module
 
 config();
 
@@ -12,9 +12,9 @@ if (!API_KEY) {
   throw new Error("GOVEE_API_KEY environment variable is required");
 }
 
-const client = new GoveeClient(API_KEY);
+export const client = new GoveeClient(API_KEY);
 
-function formatDeviceState(state: any) {
+export function formatDeviceState(state: any) {
   if (!state?.payload?.capabilities) {
     throw new Error("Invalid device state response");
   }
@@ -46,7 +46,7 @@ function formatDeviceState(state: any) {
   };
 }
 
-async function getDeviceState(deviceName: string) {
+export async function getDeviceState(deviceName: string) {
   const device = devices[deviceName];
   if (!device) {
     throw new Error(
@@ -59,34 +59,5 @@ async function getDeviceState(deviceName: string) {
     `Getting state for device: ${deviceName} (${device.device}, ${device.sku})`
   );
   const state = await client.getDeviceState(device.device, device.sku);
-  console.log("Raw API Response:", JSON.stringify(state, null, 2));
   return formatDeviceState(state);
 }
-
-async function main() {
-  try {
-    console.log("Available devices:", Object.keys(devices));
-    console.log("Attempting to turn on cylinderFloorLamp...");
-
-    await turnOn("cylinderFloorLamp");
-    console.log("Turn on command sent successfully");
-
-    console.log("Waiting 2 seconds for device to update...");
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    console.log("Getting device state...");
-    const state = await getDeviceState("cylinderFloorLamp");
-    console.log("Current state:", state);
-  } catch (error) {
-    console.error("Error occurred:");
-    if (error instanceof Error) {
-      console.error("Message:", error.message);
-      console.error("Stack:", error.stack);
-    } else {
-      console.error("Unknown error:", error);
-    }
-    process.exit(1);
-  }
-}
-
-main();
