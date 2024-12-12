@@ -78,18 +78,39 @@ async function promptForValue(operation: string): Promise<number> {
 
 async function interactiveControl() {
   try {
-    // First, select a device
+    // First, select a device or action
     const { deviceName } = await inquirer.prompt([
       {
         type: "list",
         name: "deviceName",
-        message: "Select a device:",
-        choices: Object.entries(devices).map(([name, device]) => ({
-          name: `${name} (${device.deviceName})`,
-          value: name,
-        })),
+        message: "Select a device or action:",
+        choices: [
+          ...Object.entries(devices).map(([name, device]) => ({
+            name: `${name} (${device.deviceName})`,
+            value: name,
+          })),
+          new inquirer.Separator(),
+          { name: "Save all light states", value: "SAVE_STATES" }
+        ],
       },
     ]);
+
+    // After this prompt, add a condition to handle the save action
+    if (deviceName === "SAVE_STATES") {
+      await saveCurrentStates();
+      const { again } = await inquirer.prompt([
+        {
+          type: "confirm",
+          name: "again",
+          message: "Would you like to perform another operation?",
+          default: true,
+        },
+      ]);
+      if (again) {
+        await interactiveControl();
+      }
+      return;
+    }
 
     // Then, select an operation
     const { operation } = await inquirer.prompt([
