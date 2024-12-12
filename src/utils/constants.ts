@@ -9,7 +9,8 @@ export const DEFAULT_COLOR_TEMP = 4000;
 export const CONFIG_FILES = {
   DEVICES: 'src/config/devices.json',
   SAVED_STATES: 'src/config/saved-states.json',
-  PRESETS: 'src/config/presets.json'
+  PRESETS: 'src/config/presets.json',
+  COLORS: 'src/config/colors.json'
 } as const;
 
 export const API_ENDPOINTS = {

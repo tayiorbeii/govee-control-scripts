@@ -3,6 +3,8 @@ import { createPrompt, useState, useKeypress } from "@inquirer/core";
 import type { Separator } from "inquirer";
 import { ColorService } from "../../services/ColorService.js";
 
+chalk.level = 3;
+
 export interface ColorPickerOptions {
   message: string;
   deviceName?: string;
@@ -70,9 +72,9 @@ const interactiveColorPicker = createPrompt<string, ColorPickerOptions>(
       }
     });
 
-    const colorPreview = "██████";
+    const colorPreview = "████████";
     const hexColor = rgbToHex(...state.currentRgb);
-    const coloredPreview = chalk.rgb(...state.currentRgb)(colorPreview);
+    const coloredPreview = chalk.hex(hexColor)(colorPreview);
     const message_prefix = state.status === "done" ? "✔" : "?";
 
     return `${message_prefix} ${config.message}
@@ -153,7 +155,7 @@ export async function colorPicker({
             new inquirer.Separator("= Current Color =") as Separator,
             {
               name: `Current: ${chalk.hex(currentColor)(
-                "■■■■"
+                "████████"
               )} ${currentColor}`,
               value: currentColor,
             },
@@ -161,7 +163,7 @@ export async function colorPicker({
         : []),
       new inquirer.Separator("= Favorite Colors =") as Separator,
       ...favoriteColors.map((c: ColorChoice) => ({
-        name: `${chalk.hex(c.hex)("■■■■")} ${c.name} (${c.hex})`,
+        name: `${chalk.hex(c.hex)("████████")} ${c.name} (${c.hex})`,
         value: c.hex,
       })),
       new inquirer.Separator() as Separator,

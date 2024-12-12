@@ -1,0 +1,136 @@
+{
+  "currentColors": {
+    "cylinderFloorLamp": "#ffffff",
+    "deskBulb": "#ffffff"
+  },
+  "favoriteColors": [
+    {
+      "name": "Warm White",
+      "hex": "#FFE5CC"
+    },
+    {
+      "name": "Cool White",
+      "hex": "#F5F5F5"
+    },
+    {
+      "name": "Soft White",
+      "hex": "#F4EBD9"
+    },
+    {
+      "name": "Reading",
+      "hex": "#FFE0B3"
+    },
+    {
+      "name": "Relaxing",
+      "hex": "#FFD700"
+    },
+    {
+      "name": "Evening",
+      "hex": "#FFA07A"
+    },
+    {
+      "name": "Picton Blue",
+      "hex": "#3FD9FF"
+    },
+    {
+      "name": "Button Blue",
+      "hex": "#1F97E7"
+    },
+    {
+      "name": "Vibrant Blue",
+      "hex": "#0000F0"
+    },
+    {
+      "name": "Dark Blue",
+      "hex": "#000F0F"
+    },
+    {
+      "name": "Light Blue",
+      "hex": "#00F0F0"
+    },
+    {
+      "name": "Royal Blue",
+      "hex": "#4169E1"
+    },
+    {
+      "name": "Pure Blue",
+      "hex": "#0000FF"
+    },
+    {
+      "name": "Light Green",
+      "hex": "#90EE80"
+    },
+    {
+      "name": "Tea Green",
+      "hex": "#C3FACC"
+    },
+    {
+      "name": "Bright Green",
+      "hex": "#00F000"
+    },
+    {
+      "name": "Forest Green",
+      "hex": "#228B22"
+    },
+    {
+      "name": "Lime Green",
+      "hex": "#32CD32"
+    },
+    {
+      "name": "Mango Green",
+      "hex": "#8EFF00"
+    },
+    {
+      "name": "Pure Green",
+      "hex": "#00FF00"
+    },
+    {
+      "name": "Plump Purple",
+      "hex": "#5845B1"
+    },
+    {
+      "name": "Electric Violet",
+      "hex": "#8E00FF"
+    },
+    {
+      "name": "Fuchsia",
+      "hex": "#FF00EC"
+    },
+    {
+      "name": "Amethyst",
+      "hex": "#9A5BD4"
+    },
+    {
+      "name": "Rich Purple",
+      "hex": "#6633C6"
+    },
+    {
+      "name": "Classic Purple",
+      "hex": "#800080"
+    },
+    {
+      "name": "Indigo",
+      "hex": "#4B0082"
+    },
+    {
+      "name": "Magenta",
+      "hex": "#FF00FF"
+    },
+    {
+      "name": "Cyan",
+      "hex": "#00FFFF"
+    },
+    {
+      "name": "Gold",
+      "hex": "#FFD700"
+    },
+    {
+      "name": "Orange Red",
+      "hex": "#FF4500"
+    },
+    {
+      "name": "Turquoise",
+      "hex": "#1ABC9C"
+    }
+  ]
+}

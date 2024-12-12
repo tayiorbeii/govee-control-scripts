@@ -57,7 +57,7 @@ process.on("unhandledRejection", (error) => {
 });
 
 program
-  .name("govee-control")
+  .name("govee")
   .description("CLI to control Govee devices")
   .version("1.0.0");
 
@@ -87,7 +87,6 @@ async function promptForValue(operation: string): Promise<number> {
 
 async function interactiveControl() {
   try {
-    // First, select a device or action
     const { deviceName } = await inquirer.prompt([
       {
         type: "list",
@@ -104,7 +103,6 @@ async function interactiveControl() {
       },
     ]);
 
-    // After this prompt, add a condition to handle the save action
     if (deviceName === "SAVE_STATES") {
       await saveCurrentStates();
       const { again } = await inquirer.prompt([
@@ -121,7 +119,6 @@ async function interactiveControl() {
       return;
     }
 
-    // Then, select an operation
     const { operation } = await inquirer.prompt([
       {
         type: "list",
@@ -139,7 +136,6 @@ async function interactiveControl() {
       },
     ]);
 
-    // Handle the selected operation
     switch (operation) {
       case "on":
         await turnOn(deviceName);
@@ -180,7 +176,6 @@ async function interactiveControl() {
         break;
     }
 
-    // Ask if user wants to perform another operation
     const { again } = await inquirer.prompt([
       {
         type: "confirm",
@@ -201,11 +196,14 @@ async function interactiveControl() {
 
 program
   .command("interactive")
+  .alias("i")
   .description("Interactive mode to control devices")
   .action(interactiveControl);
 
 program
   .command("list")
+  .alias("l")
+  .alias("ls")
   .description("List all available devices")
   .action(async () => {
     try {
@@ -221,6 +219,7 @@ program
 
 program
   .command("control")
+  .alias("c")
   .description("Control a specific device")
   .argument("<device>", "Device name")
   .option(
@@ -300,14 +299,24 @@ program
   });
 
 program
-  .command("preset <presetName>")
+  .command("preset [presetName]")
+  .alias("p")
   .description("Apply a preset configuration to one or more devices")
-  .action(async (presetName: string) => {
+  .action(async (presetName?: string) => {
     try {
+      if (!presetName) {
+        const presetNames = Object.keys(presets);
+        console.log("\nAvailable presets:");
+        presetNames.forEach((p) => console.log(`  ${p}`));
+        process.exit(0);
+      }
+
       const preset = presets[presetName];
       if (!preset) {
-        console.error(`Preset "${presetName}" not found`);
-        return;
+        const presetNames = Object.keys(presets);
+        console.log("\nAvailable presets:");
+        presetNames.forEach((p) => console.log(`  ${p}`));
+        process.exit(0);
       }
 
       for (const [deviceName, settings] of Object.entries(preset)) {

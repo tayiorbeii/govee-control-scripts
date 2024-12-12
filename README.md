@@ -1,44 +1,14 @@
 # govee-control-scripts
 
-CLI tool for controlling Govee devices.
+CLI tool for controlling Govee lights.
 
-## Project Structure
-
-```
-.
-├── src/             # Source code
-│   ├── cli/         # CLI-related code
-│   │   └── commands/# Individual CLI commands
-│   ├── config/      # Configuration files
-│   ├── services/    # Core services
-│   ├── types/       # TypeScript type definitions
-│   ├── utils/       # Utility functions
-│   └── index.ts     # Main entry point
-├── dist/            # Compiled JavaScript output
-├── colors.json      # Color presets configuration
-├── package.json     # Project dependencies and scripts
-└── tsconfig.json    # TypeScript configuration
-```
 
 ## Installation
 
-1. Clone the repository
-2. Install dependencies:
+Clone the repository and install dependencies:
 ```bash
 npm install
 ```
-
-3. Build the project:
-```bash
-npm run build
-```
-
-4. Install globally:
-```bash
-npm install -g .
-```
-
-This will make the `govee` command available system-wide.
 
 ## Configuration
 
@@ -47,9 +17,20 @@ This will make the `govee` command available system-wide.
 GOVEE_API_KEY=your_api_key_here
 ```
 
-2. Set up your devices:
+To request an API key:
+- Open the Govee app on your mobile device.
+- Tap the profile icon in the bottom right corner.
+- Click the gear icon (settings) at the top right corner.
+- Select "Apply for API key."
+- Fill out the form with your name and reason for application.
+- For the reason, write: "I want to control my lights programmatically."
+- Submit the form.
+
+You should be emailed your API key within a few minutes.
+
+### Identify devices and save to config
 ```bash
-govee identify
+tsx src/cli/commands/identifyDevices.ts
 ```
 
 This will:
@@ -57,44 +38,60 @@ This will:
 - Save the device list to `src/config/devices.json`
 - Save current device states to `src/config/saved-states.json`
 
-3. Update your device configurations in `src/config/devices.ts`:
-```typescript
-export const devices = {
-  "livingRoomLamp": {  // Your custom device name
-    device: "XX:XX:XX:XX:XX:XX:XX:XX",  // MAC address from devices.json
-    deviceName: "Living Room Lamp",      // Friendly name
-    sku: "H6159",                        // Model number from devices.json
-  },
-  // Add more devices as needed
-};
-```
+Create variables for your lights in `src/config/devices.ts` based on `src/config/devices.json` 
 
-## Usage
-
-After 
+### Install CLI tool for global use
 
 ```bash
-# List devices
-govee list
-
-# Save current states of all devices
-govee save
-
-# Start interactive mode
-govee interactive
-
-# State Management
-govee save                               # Save current states of all devices
-govee interactive                        # Start interactive control mode
+npm install -g .
 ```
 
-# Set brightness (0-100)
-govee brightness <device-name> <level>
+This will make the `govee` command available system-wide:
 
-# Set color temperature (2000-9000K)
-govee temperature <device-name> <temp>
-
-# Set color (hex)
-govee color <device-name> <hex-color>
+```bash
+govee
 ```
 
+Running the command will show the help menu:
+
+```bash
+Usage: govee [options] [command]
+
+CLI to control Govee devices
+
+Options:
+  -V, --version                 output the version number
+  -h, --help                    display help for command
+
+Commands:
+  interactive|i                 Interactive mode to control devices
+  list|l                        List all available devices
+  control|c [options] <device>  Control a specific device
+  preset|p <presetName>         Apply a preset configuration to one or more devices
+  help [command]                display help for command
+```
+
+The interactive mode includes the ability to set brightness, temperature, and color. There's even an interactive color picker!
+
+## Update presets
+
+Update `src/config/colors.json` with your favorite colors to choose from in interactive mode.
+
+Update `src/config/presets.json` with settings you would like save. You can provide information for multiple lights in the same preset, but note that the Govee API will only process one command at a time.
+
+Example preset:
+
+```json
+{
+  "nightMode": {
+    "cylinderFloorLamp": {
+      "color": "#4D0000",
+      "brightness": 30
+    },
+    "deskBulb": {
+      "color": "#4D0000",
+      "brightness": 13
+    }
+  }
+}
+```
