@@ -2,6 +2,7 @@ import { GoveeDevice } from "./types.js";
 import { GoveeClient } from "./client.js";
 import { config } from "dotenv";
 import { devices } from "./devices.js";
+import { colorManager } from './colorManager.js';
 
 config();
 
@@ -83,6 +84,7 @@ export async function setColor(
     }
 
     await client.setColor(device.device, device.sku, { r, g, b });
+    await colorManager.setCurrentColor(deviceName, `#${hex}`);
     console.log(`Successfully set ${deviceName} color to ${color} (R:${r} G:${g} B:${b})`);
   } catch (error) {
     console.error(`Error setting color for ${deviceName}:`, error);

@@ -90,7 +90,10 @@ async function interactiveControl() {
         console.log(`Set ${deviceName} brightness to ${brightness}`);
         break;
       case 'color':
-        const selectedColor = await colorPicker({ message: 'Choose a color for the device:' });
+        const selectedColor = await colorPicker({ 
+          message: 'Choose a color for the device:',
+          deviceName 
+        });
         await setColor(deviceName, selectedColor);
         break;
       case 'temperature':
