@@ -1,7 +1,10 @@
+#!/usr/bin/env node
+
 import { Command } from "commander";
 import { createRequire } from "module";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from 'url';
 const require = createRequire(import.meta.url);
 const inquirer = require("inquirer");
 import { devices } from "./devices.js";
@@ -32,7 +35,9 @@ interface Presets {
 
 function loadPresets(): Presets {
   try {
-    const presetsPath = path.join(process.cwd(), "src", "config", "presets.json");
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const presetsPath = path.join(__dirname, "config", "presets.json");
     const presets = JSON.parse(fs.readFileSync(presetsPath, "utf8"));
     return presets;
   } catch (error) {

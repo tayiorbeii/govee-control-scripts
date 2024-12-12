@@ -1,0 +1,32 @@
+{
+  "rgbicFloorLamp": {
+    "power": false,
+    "brightness": 18,
+    "colorTemp": 0,
+    "color": "#8338ec"
+  },
+  "cylinderFloorLamp": {
+    "power": true,
+    "brightness": 7,
+    "colorTemp": 2700,
+    "color": "#ffffff"
+  },
+  "deskBulb": {
+    "power": true,
+    "brightness": 12,
+    "colorTemp": 2700,
+    "color": "#ffffff"
+  },
+  "ceiling1": {
+    "power": true,
+    "brightness": 96,
+    "colorTemp": 3100,
+    "color": "#ffffff"
+  },
+  "ceiling2": {
+    "power": true,
+    "brightness": 96,
+    "colorTemp": 3100,
+    "color": "#ffffff"
+  }
+}
