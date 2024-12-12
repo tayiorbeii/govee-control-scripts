@@ -111,7 +111,8 @@ export class GoveeClient {
       );
 
       if (response.code !== 200) {
-        throw new Error(`Failed to control device: ${response.message}`);
+        console.log('API Response:', JSON.stringify(response, null, 2));
+        throw new Error(`Failed to control device: ${response.message || JSON.stringify(response)}`);
       }
     } catch (error) {
       console.error("Error controlling device:", error);
@@ -146,18 +147,15 @@ export class GoveeClient {
   async setColor(
     device: string,
     sku: string,
-    r: number,
-    g: number,
-    b: number
+    color: { r: number; g: number; b: number }
   ): Promise<void> {
-    if ([r, g, b].some((v) => v < 0 || v > 255)) {
-      throw new Error("RGB values must be between 0 and 255");
-    }
-    const rgb = ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
-    return this.controlDevice(device, sku, {
+    // Convert RGB to a single number value as expected by the API
+    const colorValue = (color.r << 16) | (color.g << 8) | color.b;
+    
+    await this.controlDevice(device, sku, {
       type: "devices.capabilities.color_setting",
       instance: "colorRgb",
-      value: rgb,
+      value: colorValue
     });
   }
 

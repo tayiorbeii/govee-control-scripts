@@ -63,17 +63,27 @@ export async function setBrightness(
 
 export async function setColor(
   deviceName: GoveeDeviceName,
-  r: number,
-  g: number,
-  b: number
+  color: string
 ): Promise<void> {
   try {
     const device = devices[deviceName];
     if (!device) {
       throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
     }
-    await client.setColor(device.device, device.sku, r, g, b);
-    console.log(`Successfully set color to RGB(${r},${g},${b}) for ${deviceName}`);
+
+    // Convert hex to RGB
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    // Validate RGB values
+    if ([r, g, b].some(v => isNaN(v) || v < 0 || v > 255)) {
+      throw new Error(`Invalid color value: ${color}`);
+    }
+
+    await client.setColor(device.device, device.sku, { r, g, b });
+    console.log(`Successfully set ${deviceName} color to ${color} (R:${r} G:${g} B:${b})`);
   } catch (error) {
     console.error(`Error setting color for ${deviceName}:`, error);
     throw error;

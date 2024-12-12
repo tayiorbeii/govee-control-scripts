@@ -3,7 +3,8 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const inquirer = require('inquirer');
 import { devices } from './devices.js';
-import { turnOn, turnOff, setBrightness, setColorTemperature, workMode } from './goveeControl.js';
+import { turnOn, turnOff, setBrightness, setColorTemperature, setColor, workMode } from './goveeControl.js';
+import colorPicker from './prompts/colorPicker.js';
 
 const program = new Command();
 
@@ -66,6 +67,7 @@ async function interactiveControl() {
           { name: 'Turn On', value: 'on' },
           { name: 'Turn Off', value: 'off' },
           { name: 'Set Brightness', value: 'brightness' },
+          { name: 'Set Color', value: 'color' },
           { name: 'Set Color Temperature', value: 'temperature' },
           { name: 'Work Mode', value: 'work' }
         ]
@@ -86,6 +88,10 @@ async function interactiveControl() {
         const brightness = await promptForValue('brightness');
         await setBrightness(deviceName, brightness);
         console.log(`Set ${deviceName} brightness to ${brightness}`);
+        break;
+      case 'color':
+        const selectedColor = await colorPicker({ message: 'Choose a color for the device:' });
+        await setColor(deviceName, selectedColor);
         break;
       case 'temperature':
         const temperature = await promptForValue('temperature');
