@@ -3,6 +3,7 @@ import { GoveeClient } from "./client.js";
 import { config } from "dotenv";
 import { devices } from "./devices.js";
 import { colorManager } from "./colorManager.js";
+import * as fs from 'fs';
 
 config();
 
@@ -157,9 +158,10 @@ export async function setColorTemperature(
 export async function workMode(): Promise<void> {
   try {
     const workModeSettings = [
-      { device: "deskBulb", colorTemp: 5000, brightness: 100 },
-      { device: "ceiling1", colorTemp: 4500, brightness: 80 },
-      { device: "ceiling2", colorTemp: 4500, brightness: 80 },
+      { device: "deskBulb", colorTemp: 3800, brightness: 100 },
+      { device: "ceiling1", colorTemp: 3800, brightness: 80 },
+      { device: "ceiling2", colorTemp: 3800, brightness: 80 },
+      { device: "cylinderFloorLamp", colorTemp: 3800, brightness: 80 },
     ] as const;
 
     for (const setting of workModeSettings) {
@@ -197,6 +199,56 @@ export function getDeviceCapabilities(deviceName: GoveeDeviceName) {
     );
   } catch (error) {
     console.error(`Error getting capabilities for ${deviceName}:`, error);
+    throw error;
+  }
+}
+
+export async function getCurrentDeviceStates() {
+  const states: Record<string, any> = {};
+  
+  for (const [deviceName, device] of Object.entries(devices)) {
+    try {
+      const state = await client.getDeviceState(device.device, device.sku);
+      if (!state?.payload?.capabilities) {
+        console.warn(`Invalid state response for ${deviceName}`);
+        continue;
+      }
+
+      const capabilities = state.payload.capabilities;
+      states[deviceName] = {
+        power: capabilities.find(
+          (cap: any) => cap.type === "devices.capabilities.on_off" && cap.instance === "powerSwitch"
+        )?.state?.value === 1,
+        brightness: capabilities.find(
+          (cap: any) => cap.type === "devices.capabilities.range" && cap.instance === "brightness"
+        )?.state?.value,
+        colorTemp: capabilities.find(
+          (cap: any) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorTemperatureK"
+        )?.state?.value,
+        color: capabilities.find(
+          (cap: any) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorRgb"
+        )?.state?.value
+      };
+    } catch (error) {
+      console.error(`Error getting state for ${deviceName}:`, error);
+    }
+  }
+  
+  return states;
+}
+
+export async function saveCurrentStates() {
+  try {
+    const states = await getCurrentDeviceStates();
+    await fs.promises.writeFile(
+      'saved-states.json',
+      JSON.stringify(states, null, 2),
+      'utf-8'
+    );
+    console.log('Successfully saved current states to saved-states.json');
+    return states;
+  } catch (error) {
+    console.error('Error saving states:', error);
     throw error;
   }
 }

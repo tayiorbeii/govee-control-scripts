@@ -12,6 +12,7 @@ import {
   setColorTemperature,
   setColor,
   workMode,
+  saveCurrentStates,
 } from "./goveeControl.js";
 import colorPicker from "./prompts/colorPicker.js";
 
@@ -103,6 +104,7 @@ async function interactiveControl() {
           { name: "Set Color", value: "color" },
           { name: "Set Color Temperature", value: "temperature" },
           { name: "Work Mode", value: "work" },
+          { name: "Save Current Light Settings", value: "save-states" },
         ],
       },
     ]);
@@ -139,6 +141,9 @@ async function interactiveControl() {
       case "work":
         await workMode();
         console.log("Work mode activated");
+        break;
+      case "save-states":
+        await saveCurrentStates();
         break;
     }
 
@@ -243,6 +248,9 @@ program
           await workMode();
           console.log("Work mode activated");
           break;
+        case "save-states":
+          await saveCurrentStates();
+          break;
         default:
           console.log("Available operations:");
           console.log("- on: Turn device on");
@@ -250,6 +258,7 @@ program
           console.log("- brightness: Set brightness (0-100)");
           console.log("- temperature: Set color temperature (in Kelvin)");
           console.log("- work: Activate work mode");
+          console.log("- save-states: Save current light settings");
       }
     } catch (error) {
       console.error("Error:", error);
