@@ -1,5 +1,8 @@
 {
-  "currentColors": {},
+  "currentColors": {
+    "cylinderFloorLamp": "#ffffff",
+    "deskBulb": "#ffffff"
+  },
   "favoriteColors": [
     {
       "name": "Warm White",

@@ -22,8 +22,12 @@ interface PresetConfig {
   temperature?: number;
 }
 
+interface DevicePresets {
+  [deviceName: string]: PresetConfig;
+}
+
 interface Presets {
-  [key: string]: PresetConfig;
+  [presetName: string]: DevicePresets;
 }
 
 function loadPresets(): Presets {
@@ -291,33 +295,37 @@ program
   });
 
 program
-  .command("preset <deviceName> <presetName>")
-  .description("Apply a preset configuration to a device")
-  .action(async (deviceName: string, presetName: string) => {
+  .command("preset <presetName>")
+  .description("Apply a preset configuration to one or more devices")
+  .action(async (presetName: string) => {
     try {
-      const device = devices[deviceName];
-      if (!device) {
-        console.error(`Device "${deviceName}" not found`);
-        return;
-      }
-
       const preset = presets[presetName];
       if (!preset) {
         console.error(`Preset "${presetName}" not found`);
         return;
       }
 
-      if (preset.color) {
-        await setColor(deviceName, preset.color);
-      }
-      if (preset.brightness !== undefined) {
-        await setBrightness(deviceName, preset.brightness);
-      }
-      if (preset.temperature !== undefined) {
-        await setColorTemperature(deviceName, preset.temperature);
+      for (const [deviceName, settings] of Object.entries(preset)) {
+        const device = devices[deviceName];
+        if (!device) {
+          console.error(`Device "${deviceName}" not found in preset "${presetName}"`);
+          continue;
+        }
+
+        if (settings.color) {
+          await setColor(deviceName, settings.color);
+        }
+        if (settings.brightness !== undefined) {
+          await setBrightness(deviceName, settings.brightness);
+        }
+        if (settings.temperature !== undefined) {
+          await setColorTemperature(deviceName, settings.temperature);
+        }
+
+        console.log(`Applied preset settings to device "${deviceName}"`);
       }
 
-      console.log(`Applied preset "${presetName}" to device "${deviceName}"`);
+      console.log(`Successfully applied preset "${presetName}" to all devices`);
     } catch (error) {
       console.error("Error applying preset:", error);
     }
