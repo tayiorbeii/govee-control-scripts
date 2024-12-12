@@ -16,23 +16,26 @@ const client = new GoveeClient(API_KEY);
 type GoveeDeviceName = keyof typeof devices;
 
 export async function turnOff(deviceName: GoveeDeviceName): Promise<void> {
-  const device = devices[deviceName];
-  await client.turnDevice(device.device, device.sku, false);
+  try {
+    const device = devices[deviceName];
+    if (!device) {
+      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+    }
+    await client.turnDevice(device.device, device.sku, false);
+    console.log(`Successfully turned off ${deviceName}`);
+  } catch (error) {
+    console.error(`Error turning off ${deviceName}:`, error);
+    throw error;
+  }
 }
 
 export async function turnOn(deviceName: GoveeDeviceName): Promise<void> {
-  const device = devices[deviceName];
-  if (!device) {
-    throw new Error(
-      `Device ${deviceName} not found. Available devices: ${Object.keys(
-        devices
-      ).join(", ")}`
-    );
-  }
-  console.log(
-    `Turning on device: ${deviceName} (${device.device}, ${device.sku})`
-  );
   try {
+    const device = devices[deviceName];
+    if (!device) {
+      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+    }
+    console.log(`Turning on device: ${deviceName} (${device.device}, ${device.sku})`);
     await client.turnDevice(device.device, device.sku, true);
     console.log(`Successfully sent turn on command to ${deviceName}`);
   } catch (error) {
@@ -45,8 +48,17 @@ export async function setBrightness(
   deviceName: GoveeDeviceName,
   brightness: number
 ): Promise<void> {
-  const device = devices[deviceName];
-  await client.setBrightness(device.device, device.sku, brightness);
+  try {
+    const device = devices[deviceName];
+    if (!device) {
+      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+    }
+    await client.setBrightness(device.device, device.sku, brightness);
+    console.log(`Successfully set brightness to ${brightness} for ${deviceName}`);
+  } catch (error) {
+    console.error(`Error setting brightness for ${deviceName}:`, error);
+    throw error;
+  }
 }
 
 export async function setColor(
@@ -55,59 +67,87 @@ export async function setColor(
   g: number,
   b: number
 ): Promise<void> {
-  const device = devices[deviceName];
-  await client.setColor(device.device, device.sku, r, g, b);
+  try {
+    const device = devices[deviceName];
+    if (!device) {
+      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+    }
+    await client.setColor(device.device, device.sku, r, g, b);
+    console.log(`Successfully set color to RGB(${r},${g},${b}) for ${deviceName}`);
+  } catch (error) {
+    console.error(`Error setting color for ${deviceName}:`, error);
+    throw error;
+  }
 }
 
 export async function setColorTemperature(
   deviceName: GoveeDeviceName,
   temperature: number
 ): Promise<void> {
-  const device = devices[deviceName];
-  const colorTempCap = device.capabilities.find(
-    (cap) => 
-      cap.type === "devices.capabilities.color_setting" && 
-      cap.instance === "colorTemperatureK"
-  );
-
-  if (colorTempCap?.parameters?.dataType === "INTEGER" && colorTempCap.parameters.range) {
-    const { min, max } = colorTempCap.parameters.range;
-    if (temperature < min || temperature > max) {
-      throw new Error(
-        `Color temperature must be between ${min}K and ${max}K for this device`
-      );
+  try {
+    const device = devices[deviceName];
+    if (!device) {
+      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
     }
-  }
 
-  await client.setColorTemperature(device.device, device.sku, temperature);
+    const colorTempCap = device.capabilities.find(
+      (cap) => cap.type === "colorTemperature" && cap.instance === "1"
+    );
+
+    if (colorTempCap?.parameters?.dataType === "INTEGER" && colorTempCap.parameters.range) {
+      const { min, max } = colorTempCap.parameters.range;
+      if (temperature < min || temperature > max) {
+        throw new Error(`Color temperature must be between ${min}K and ${max}K for this device`);
+      }
+    }
+
+    await client.setColorTemperature(device.device, device.sku, temperature);
+    console.log(`Successfully set color temperature to ${temperature}K for ${deviceName}`);
+  } catch (error) {
+    console.error(`Error setting color temperature for ${deviceName}:`, error);
+    throw error;
+  }
 }
 
 export async function workMode(): Promise<void> {
-  const workModeSettings = [
-    { device: "Desk Bulb", colorTemp: 5000, brightness: 100 },
-    { device: "Ceiling 1", colorTemp: 4500, brightness: 80 },
-    { device: "Ceiling 2", colorTemp: 4500, brightness: 80 },
-  ] as const;
+  try {
+    const workModeSettings = [
+      { device: "deskBulb", colorTemp: 5000, brightness: 100 },
+      { device: "ceiling1", colorTemp: 4500, brightness: 80 },
+      { device: "ceiling2", colorTemp: 4500, brightness: 80 },
+    ] as const;
 
-  for (const setting of workModeSettings) {
-    const deviceName = setting.device as GoveeDeviceName;
-    await turnOn(deviceName);
-    await setBrightness(deviceName, setting.brightness);
-    await setColorTemperature(deviceName, setting.colorTemp);
+    for (const setting of workModeSettings) {
+      const deviceName = setting.device as GoveeDeviceName;
+      await turnOn(deviceName);
+      await setBrightness(deviceName, setting.brightness);
+      await setColorTemperature(deviceName, setting.colorTemp);
+    }
+    console.log("Work mode successfully activated for all devices");
+  } catch (error) {
+    console.error("Error activating work mode:", error);
+    throw error;
   }
 }
 
-// Utility function to get device capabilities
 export function getDeviceCapabilities(deviceName: GoveeDeviceName) {
-  const device = devices[deviceName];
-  return device.capabilities.reduce(
-    (acc: Record<string, { instance: string; parameters: unknown }>, cap) => {
-      acc[`${cap.type}.${cap.instance}`] = {
-        instance: cap.instance,
-        parameters: cap.parameters,
-      };
-      return acc;
-    },
-    {}
-  );
+  try {
+    const device = devices[deviceName];
+    if (!device) {
+      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+    }
+    return device.capabilities.reduce(
+      (acc: Record<string, { instance: string; parameters: unknown }>, cap) => {
+        acc[`${cap.type}.${cap.instance}`] = {
+          instance: cap.instance,
+          parameters: cap.parameters,
+        };
+        return acc;
+      },
+      {}
+    );
+  } catch (error) {
+    console.error(`Error getting capabilities for ${deviceName}:`, error);
+    throw error;
+  }
 }

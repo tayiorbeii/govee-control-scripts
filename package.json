@@ -4,18 +4,27 @@
   "description": "",
   "main": "index.js",
   "type": "module",
+  "bin": {
+    "govee": "./dist/cli.js"
+  },
   "scripts": {
     "start": "NODE_OPTIONS='--loader ts-node/esm' ts-node --esm src/index.ts",
+    "build": "tsc",
+    "cli": "NODE_OPTIONS='--loader ts-node/esm' ts-node --esm src/cli.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "@types/commander": "^2.12.5",
+    "@types/inquirer": "^8.2.10",
+    "commander": "^12.1.0",
+    "dotenv": "^16.3.1",
+    "inquirer": "^8.2.6"
   },
   "devDependencies": {
-    "@types/node": "^20.8.2",
+    "@types/node": "^20.17.10",
     "dotenv": "^16.3.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
