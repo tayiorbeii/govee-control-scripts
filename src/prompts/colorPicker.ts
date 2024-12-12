@@ -157,6 +157,10 @@ export default async function colorPicker({ message, deviceName }: ColorPickerOp
     if (colorChoice === 'back') return colorPicker({ message, deviceName });
     return colorChoice;
   } catch (error) {
+    if (error instanceof Error && error.message.includes('User force closed')) {
+      console.log('\nExiting color picker...');
+      return 'CURRENT_COLOR';
+    }
     console.error('Error in color picker:', error);
     throw error;
   }

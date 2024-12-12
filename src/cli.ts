@@ -28,7 +28,7 @@ interface Presets {
 
 function loadPresets(): Presets {
   try {
-    const presetsPath = path.join(process.cwd(), "src/config/presets.json");
+    const presetsPath = path.join(process.cwd(), "src", "config", "presets.json");
     const presets = JSON.parse(fs.readFileSync(presetsPath, "utf8"));
     return presets;
   } catch (error) {
@@ -150,6 +150,9 @@ async function interactiveControl() {
           message: "Choose a color for the device:",
           deviceName,
         });
+        if (selectedColor === null) {
+          process.exit(0);
+        }
         if (selectedColor !== "CURRENT_COLOR") {
           await setColor(deviceName, selectedColor);
         }

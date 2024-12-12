@@ -4,6 +4,7 @@ import { config } from "dotenv";
 import { devices } from "./devices.js";
 import { colorManager } from "./colorManager.js";
 import * as fs from 'fs';
+import * as path from 'path';
 
 config();
 
@@ -239,16 +240,43 @@ export async function getCurrentDeviceStates() {
 
 export async function saveCurrentStates() {
   try {
-    const states = await getCurrentDeviceStates();
-    await fs.promises.writeFile(
-      'saved-states.json',
-      JSON.stringify(states, null, 2),
-      'utf-8'
+    const states = await Promise.all(
+      Object.entries(devices).map(async ([name, device]) => {
+        const state = await client.getDeviceState(device.device, device.sku);
+        return { [name]: formatDeviceState(state) };
+      })
     );
-    console.log('Successfully saved current states to saved-states.json');
-    return states;
+
+    const combinedStates = Object.assign({}, ...states);
+    const savePath = path.join(process.cwd(), "src", "config", "saved-states.json");
+    fs.writeFileSync(savePath, JSON.stringify(combinedStates, null, 2));
+    console.log("Current states saved successfully");
   } catch (error) {
-    console.error('Error saving states:', error);
+    console.error("Error saving states:", error);
     throw error;
   }
+}
+
+function formatDeviceState(state: any) {
+  if (!state?.payload?.capabilities) {
+    throw new Error("Invalid device state response");
+  }
+
+  const capabilities = state.payload.capabilities;
+  const color = capabilities.find(
+    (cap: any) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorRgb"
+  )?.state?.value;
+
+  return {
+    power: capabilities.find(
+      (cap: any) => cap.type === "devices.capabilities.on_off" && cap.instance === "powerSwitch"
+    )?.state?.value === 1,
+    brightness: capabilities.find(
+      (cap: any) => cap.type === "devices.capabilities.range" && cap.instance === "brightness"
+    )?.state?.value,
+    colorTemp: capabilities.find(
+      (cap: any) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorTemperatureK"
+    )?.state?.value,
+    color: color ? `#${color.toString(16).padStart(6, '0')}` : undefined
+  };
 }

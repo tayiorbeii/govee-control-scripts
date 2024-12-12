@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -33,7 +33,7 @@ class ColorManager {
 
   async init(): Promise<void> {
     try {
-      const data = await fs.readFile(this.filePath, 'utf-8');
+      const data = fs.readFileSync(this.filePath, 'utf-8');
       const parsed = JSON.parse(data) as Partial<ColorState>;
       this.colorState = {
         currentColors: parsed.currentColors ?? DEFAULT_COLORS.currentColors,
@@ -47,7 +47,7 @@ class ColorManager {
 
   private async save(): Promise<void> {
     try {
-      await fs.writeFile(
+      fs.writeFileSync(
         this.filePath, 
         JSON.stringify(this.colorState, null, 2)
       );
@@ -72,3 +72,29 @@ class ColorManager {
 }
 
 export const colorManager = new ColorManager(); 
+
+// Update file paths for color-related JSON files
+const colorsPath = path.join(process.cwd(), "src", "config", "colors.json");
+const deviceColorsPath = path.join(process.cwd(), "src", "config", "device-colors.json");
+
+export function loadColors() {
+  try {
+    return JSON.parse(fs.readFileSync(colorsPath, "utf8"));
+  } catch (error) {
+    console.error("Error loading colors:", error);
+    return {};
+  }
+}
+
+export function loadDeviceColors() {
+  try {
+    return JSON.parse(fs.readFileSync(deviceColorsPath, "utf8"));
+  } catch (error) {
+    console.error("Error loading device colors:", error);
+    return {};
+  }
+}
+
+export function saveDeviceColors(colors: any) {
+  fs.writeFileSync(deviceColorsPath, JSON.stringify(colors, null, 2));
+} 

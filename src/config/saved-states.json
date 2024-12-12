@@ -3,30 +3,27 @@
     "power": false,
     "brightness": 18,
     "colorTemp": 0,
-    "color": 8599788
+    "color": "#8338ec"
   },
   "cylinderFloorLamp": {
     "power": true,
     "brightness": 7,
     "colorTemp": 2700,
-    "color": 16777215
+    "color": "#ffffff"
   },
   "deskBulb": {
     "power": true,
     "brightness": 12,
-    "colorTemp": 3100,
-    "color": 0
+    "colorTemp": 3100
   },
   "ceiling1": {
     "power": true,
     "brightness": 100,
-    "colorTemp": 4500,
-    "color": 0
+    "colorTemp": 4500
   },
   "ceiling2": {
     "power": true,
     "brightness": 100,
-    "colorTemp": 4500,
-    "color": 0
+    "colorTemp": 4500
   }
 }
