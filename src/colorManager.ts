@@ -27,7 +27,6 @@ class ColorManager {
   private readonly filePath: string;
 
   constructor() {
-    // Get the directory of the current module
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     this.filePath = path.join(__dirname, '..', 'colors.json');
   }
@@ -35,13 +34,13 @@ class ColorManager {
   async init(): Promise<void> {
     try {
       const data = await fs.readFile(this.filePath, 'utf-8');
-      const parsed = JSON.parse(data);
+      const parsed = JSON.parse(data) as Partial<ColorState>;
       this.colorState = {
-        currentColors: parsed.currentColors || {},
-        favoriteColors: parsed.favoriteColors || DEFAULT_COLORS.favoriteColors
+        currentColors: parsed.currentColors ?? DEFAULT_COLORS.currentColors,
+        favoriteColors: parsed.favoriteColors ?? DEFAULT_COLORS.favoriteColors
       };
     } catch (error) {
-      // If file doesn't exist or is invalid, create it with default values
+      // If file doesn't exist, create it with default values
       await this.save();
     }
   }
@@ -54,6 +53,7 @@ class ColorManager {
       );
     } catch (error) {
       console.error('Error saving color state:', error);
+      throw error;
     }
   }
 
@@ -66,7 +66,7 @@ class ColorManager {
     await this.save();
   }
 
-  getFavoriteColors(): { name: string; hex: string; }[] {
+  getFavoriteColors(): Array<{ name: string; hex: string }> {
     return this.colorState.favoriteColors;
   }
 }

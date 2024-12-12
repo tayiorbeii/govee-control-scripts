@@ -2,7 +2,7 @@ import { GoveeDevice } from "./types.js";
 import { GoveeClient } from "./client.js";
 import { config } from "dotenv";
 import { devices } from "./devices.js";
-import { colorManager } from './colorManager.js';
+import { colorManager } from "./colorManager.js";
 
 config();
 
@@ -20,7 +20,11 @@ export async function turnOff(deviceName: GoveeDeviceName): Promise<void> {
   try {
     const device = devices[deviceName];
     if (!device) {
-      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+      throw new Error(
+        `Device ${deviceName} not found. Available devices: ${Object.keys(
+          devices
+        ).join(", ")}`
+      );
     }
     await client.turnDevice(device.device, device.sku, false);
     console.log(`Successfully turned off ${deviceName}`);
@@ -34,9 +38,15 @@ export async function turnOn(deviceName: GoveeDeviceName): Promise<void> {
   try {
     const device = devices[deviceName];
     if (!device) {
-      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+      throw new Error(
+        `Device ${deviceName} not found. Available devices: ${Object.keys(
+          devices
+        ).join(", ")}`
+      );
     }
-    console.log(`Turning on device: ${deviceName} (${device.device}, ${device.sku})`);
+    console.log(
+      `Turning on device: ${deviceName} (${device.device}, ${device.sku})`
+    );
     await client.turnDevice(device.device, device.sku, true);
     console.log(`Successfully sent turn on command to ${deviceName}`);
   } catch (error) {
@@ -52,10 +62,16 @@ export async function setBrightness(
   try {
     const device = devices[deviceName];
     if (!device) {
-      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+      throw new Error(
+        `Device ${deviceName} not found. Available devices: ${Object.keys(
+          devices
+        ).join(", ")}`
+      );
     }
     await client.setBrightness(device.device, device.sku, brightness);
-    console.log(`Successfully set brightness to ${brightness} for ${deviceName}`);
+    console.log(
+      `Successfully set brightness to ${brightness} for ${deviceName}`
+    );
   } catch (error) {
     console.error(`Error setting brightness for ${deviceName}:`, error);
     throw error;
@@ -69,23 +85,29 @@ export async function setColor(
   try {
     const device = devices[deviceName];
     if (!device) {
-      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+      throw new Error(
+        `Device ${deviceName} not found. Available devices: ${Object.keys(
+          devices
+        ).join(", ")}`
+      );
     }
 
     // Convert hex to RGB
-    const hex = color.replace('#', '');
+    const hex = color.replace("#", "");
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
     const b = parseInt(hex.substring(4, 6), 16);
 
     // Validate RGB values
-    if ([r, g, b].some(v => isNaN(v) || v < 0 || v > 255)) {
+    if ([r, g, b].some((v) => isNaN(v) || v < 0 || v > 255)) {
       throw new Error(`Invalid color value: ${color}`);
     }
 
     await client.setColor(device.device, device.sku, { r, g, b });
     await colorManager.setCurrentColor(deviceName, `#${hex}`);
-    console.log(`Successfully set ${deviceName} color to ${color} (R:${r} G:${g} B:${b})`);
+    console.log(
+      `Successfully set ${deviceName} color to ${color} (R:${r} G:${g} B:${b})`
+    );
   } catch (error) {
     console.error(`Error setting color for ${deviceName}:`, error);
     throw error;
@@ -99,22 +121,33 @@ export async function setColorTemperature(
   try {
     const device = devices[deviceName];
     if (!device) {
-      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+      throw new Error(
+        `Device ${deviceName} not found. Available devices: ${Object.keys(
+          devices
+        ).join(", ")}`
+      );
     }
 
     const colorTempCap = device.capabilities.find(
       (cap) => cap.type === "colorTemperature" && cap.instance === "1"
     );
 
-    if (colorTempCap?.parameters?.dataType === "INTEGER" && colorTempCap.parameters.range) {
+    if (
+      colorTempCap?.parameters?.dataType === "INTEGER" &&
+      colorTempCap.parameters.range
+    ) {
       const { min, max } = colorTempCap.parameters.range;
       if (temperature < min || temperature > max) {
-        throw new Error(`Color temperature must be between ${min}K and ${max}K for this device`);
+        throw new Error(
+          `Color temperature must be between ${min}K and ${max}K for this device`
+        );
       }
     }
 
     await client.setColorTemperature(device.device, device.sku, temperature);
-    console.log(`Successfully set color temperature to ${temperature}K for ${deviceName}`);
+    console.log(
+      `Successfully set color temperature to ${temperature}K for ${deviceName}`
+    );
   } catch (error) {
     console.error(`Error setting color temperature for ${deviceName}:`, error);
     throw error;
@@ -146,7 +179,11 @@ export function getDeviceCapabilities(deviceName: GoveeDeviceName) {
   try {
     const device = devices[deviceName];
     if (!device) {
-      throw new Error(`Device ${deviceName} not found. Available devices: ${Object.keys(devices).join(", ")}`);
+      throw new Error(
+        `Device ${deviceName} not found. Available devices: ${Object.keys(
+          devices
+        ).join(", ")}`
+      );
     }
     return device.capabilities.reduce(
       (acc: Record<string, { instance: string; parameters: unknown }>, cap) => {
