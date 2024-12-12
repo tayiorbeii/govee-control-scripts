@@ -129,6 +129,18 @@ export const deskBulb: GoveeDevice = {
         },
         unit: "kelvin"
       }
+    },
+    {
+      type: "colorRgb",
+      instance: "1",
+      parameters: {
+        dataType: "INTEGER",
+        range: {
+          min: 0,
+          max: 16777215,
+          precision: 1
+        }
+      }
     }
   ]
 };
@@ -173,6 +185,18 @@ export const ceiling1: GoveeDevice = {
         },
         unit: "kelvin"
       }
+    },
+    {
+      type: "colorRgb",
+      instance: "1",
+      parameters: {
+        dataType: "INTEGER",
+        range: {
+          min: 0,
+          max: 16777215,
+          precision: 1
+        }
+      }
     }
   ]
 };
@@ -216,6 +240,18 @@ export const ceiling2: GoveeDevice = {
           precision: 100
         },
         unit: "kelvin"
+      }
+    },
+    {
+      type: "colorRgb",
+      instance: "1",
+      parameters: {
+        dataType: "INTEGER",
+        range: {
+          min: 0,
+          max: 16777215,
+          precision: 1
+        }
       }
     }
   ]

@@ -42,7 +42,7 @@ export class GoveeClient {
   async getDevices(): Promise<GoveeDevice[]> {
     try {
       const response = await this.request<GoveeResponse>(
-        "/router/api/v1/users/devices"
+        "/router/api/v1/user/devices"
       );
       return response.data;
     } catch (error) {
@@ -111,8 +111,12 @@ export class GoveeClient {
       );
 
       if (response.code !== 200) {
-        console.log('API Response:', JSON.stringify(response, null, 2));
-        throw new Error(`Failed to control device: ${response.message || JSON.stringify(response)}`);
+        console.log("API Response:", JSON.stringify(response, null, 2));
+        throw new Error(
+          `Failed to control device: ${
+            response.message || JSON.stringify(response)
+          }`
+        );
       }
     } catch (error) {
       console.error("Error controlling device:", error);
@@ -151,11 +155,11 @@ export class GoveeClient {
   ): Promise<void> {
     // Convert RGB to a single number value as expected by the API
     const colorValue = (color.r << 16) | (color.g << 8) | color.b;
-    
+
     await this.controlDevice(device, sku, {
       type: "devices.capabilities.color_setting",
       instance: "colorRgb",
-      value: colorValue
+      value: colorValue,
     });
   }
 

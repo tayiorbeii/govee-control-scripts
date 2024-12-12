@@ -205,10 +205,12 @@ export function getDeviceCapabilities(deviceName: GoveeDeviceName) {
 }
 
 export async function getCurrentDeviceStates() {
+  console.log("Getting current states for all devices...");
   const states: Record<string, any> = {};
   
   for (const [deviceName, device] of Object.entries(devices)) {
     try {
+      console.log(`\nGetting state for ${deviceName}...`);
       const state = await client.getDeviceState(device.device, device.sku);
       if (!state?.payload?.capabilities) {
         console.warn(`Invalid state response for ${deviceName}`);
@@ -216,25 +218,45 @@ export async function getCurrentDeviceStates() {
       }
 
       const capabilities = state.payload.capabilities;
+      console.log(`Raw capabilities for ${deviceName}:`, JSON.stringify(capabilities, null, 2));
+
+      const powerCap = capabilities.find(
+        (cap: any) => cap.type === "devices.capabilities.on_off" && cap.instance === "powerSwitch"
+      );
+      const brightnessCap = capabilities.find(
+        (cap: any) => cap.type === "devices.capabilities.range" && cap.instance === "brightness"
+      );
+      const colorTempCap = capabilities.find(
+        (cap: any) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorTemperatureK"
+      );
+      const colorCap = capabilities.find(
+        (cap: any) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorRgb"
+      );
+
+      console.log(`Found capabilities for ${deviceName}:`, {
+        power: powerCap?.state?.value,
+        brightness: brightnessCap?.state?.value,
+        colorTemp: colorTempCap?.state?.value,
+        color: colorCap?.state?.value
+      });
+
+      // Get the color value, defaulting to white (0xFFFFFF) if it's 0
+      const colorValue = colorCap?.state?.value;
+      const color = colorValue !== undefined ? (colorValue === 0 ? 0xFFFFFF : colorValue) : undefined;
+
       states[deviceName] = {
-        power: capabilities.find(
-          (cap: any) => cap.type === "devices.capabilities.on_off" && cap.instance === "powerSwitch"
-        )?.state?.value === 1,
-        brightness: capabilities.find(
-          (cap: any) => cap.type === "devices.capabilities.range" && cap.instance === "brightness"
-        )?.state?.value,
-        colorTemp: capabilities.find(
-          (cap: any) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorTemperatureK"
-        )?.state?.value,
-        color: capabilities.find(
-          (cap: any) => cap.type === "devices.capabilities.color_setting" && cap.instance === "colorRgb"
-        )?.state?.value
+        power: powerCap?.state?.value === 1,
+        brightness: brightnessCap?.state?.value,
+        colorTemp: colorTempCap?.state?.value,
+        ...(color !== undefined && { color: `#${color.toString(16).padStart(6, '0')}` })
       };
+      console.log(`Formatted state for ${deviceName}:`, states[deviceName]);
     } catch (error) {
       console.error(`Error getting state for ${deviceName}:`, error);
     }
   }
   
+  console.log("\nAll device states:", states);
   return states;
 }
 

@@ -14,16 +14,19 @@
   "deskBulb": {
     "power": true,
     "brightness": 12,
-    "colorTemp": 3100
+    "colorTemp": 2700,
+    "color": "#ffffff"
   },
   "ceiling1": {
     "power": true,
-    "brightness": 100,
-    "colorTemp": 4500
+    "brightness": 96,
+    "colorTemp": 3100,
+    "color": "#ffffff"
   },
   "ceiling2": {
     "power": true,
-    "brightness": 100,
-    "colorTemp": 4500
+    "brightness": 96,
+    "colorTemp": 3100,
+    "color": "#ffffff"
   }
 }
