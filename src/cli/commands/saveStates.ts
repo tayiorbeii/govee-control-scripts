@@ -1,11 +1,19 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { getCurrentDeviceStates } from './goveeControl.js';
+import { GoveeControlService } from '../../services/GoveeControlService';
+import { devices } from '../../config/devices';
 
 export async function saveCurrentStates() {
   try {
     console.log("Getting current device states...");
-    const states = await getCurrentDeviceStates();
+    const goveeControl = new GoveeControlService();
+    const states: Record<string, unknown> = {};
+
+    for (const [deviceKey, device] of Object.entries(devices)) {
+      console.log(`Getting state for ${device.deviceName}...`);
+      const state = await goveeControl.getDeviceState(device);
+      states[deviceKey] = state;
+    }
     
     const savePath = path.join(process.cwd(), "src", "config", "saved-states.json");
     console.log("Saving states to:", savePath);

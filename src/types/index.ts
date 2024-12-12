@@ -4,6 +4,11 @@ export interface GoveeResponse {
   data: GoveeDevice[];
 }
 
+export interface CommandResponse {
+  code: number;
+  message: string;
+}
+
 export interface DeviceStateResponse {
   code: number;
   message: string;
@@ -50,6 +55,24 @@ export interface GoveeDevice {
       }>;
     };
   }>;
+}
+
+export interface DeviceCapability {
+  type: string;
+  instance: string;
+  parameters: {
+    dataType: "INTEGER" | "ENUM" | "STRING";
+    range?: {
+      min: number;
+      max: number;
+      precision: number;
+    };
+    unit?: string;
+    options?: Array<{
+      name: string;
+      value: number | string | boolean;
+    }>;
+  };
 }
 
 export const myDevices: Record<string, GoveeDevice> = {

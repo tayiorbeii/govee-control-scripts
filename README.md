@@ -2,6 +2,23 @@
 
 CLI tool for controlling Govee devices.
 
+## Project Structure
+
+```
+src/
+├── cli/              # CLI-related code
+│   ├── commands/     # Individual CLI commands
+│   └── index.ts      # CLI entry point
+├── config/           # Configuration files
+├── services/         # Core services
+│   ├── GoveeApiService.ts
+│   ├── GoveeControlService.ts
+│   └── ColorService.ts
+├── types/           # TypeScript type definitions
+├── utils/           # Utility functions and constants
+└── index.ts         # Main entry point
+```
+
 ## Installation
 
 To install the package globally:
@@ -11,6 +28,25 @@ npm install -g .
 ```
 
 This will make the `govee` command available system-wide.
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run in development mode with auto-reload
+npm run dev
+
+# Build the project
+npm run build
+
+# Format code
+npm run format
+
+# Lint code
+npm run lint
+```
 
 ## Configuration
 
@@ -24,7 +60,7 @@ GOVEE_API_KEY=your_api_key_here
 
 1. First, identify your devices by running:
 ```bash
-npm run start -- src/identifyDevices.ts
+govee identify
 ```
 
 This will:
@@ -32,7 +68,7 @@ This will:
 - Save the device list to `src/config/devices.json`
 - Save current device states to `src/config/saved-states.json`
 
-2. Update `src/devices.ts` with your device configurations:
+2. Update `src/config/devices.ts` with your device configurations:
 ```typescript
 export const devices = {
   "livingRoomLamp": {  // This is your custom device name

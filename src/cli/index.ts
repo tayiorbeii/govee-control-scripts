@@ -4,10 +4,10 @@ import { Command } from "commander";
 import { createRequire } from "module";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 const require = createRequire(import.meta.url);
 const inquirer = require("inquirer");
-import { devices } from "./devices.js";
+import { devices } from "../config/devices.js";
 import {
   turnOn,
   turnOff,
@@ -16,8 +16,8 @@ import {
   setColor,
   workMode,
   saveCurrentStates,
-} from "./goveeControl.js";
-import colorPicker from "./prompts/colorPicker.js";
+} from "../services/GoveeControlService.js";
+import { colorPicker } from "./prompts/colorPicker.js";
 
 interface PresetConfig {
   color?: string;
@@ -37,7 +37,7 @@ function loadPresets(): Presets {
   try {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
-    const presetsPath = path.join(__dirname, "config", "presets.json");
+    const presetsPath = path.join(__dirname, "..", "config", "presets.json");
     const presets = JSON.parse(fs.readFileSync(presetsPath, "utf8"));
     return presets;
   } catch (error) {
@@ -99,7 +99,7 @@ async function interactiveControl() {
             value: name,
           })),
           new inquirer.Separator(),
-          { name: "Save all light states", value: "SAVE_STATES" }
+          { name: "Save all light states", value: "SAVE_STATES" },
         ],
       },
     ]);
@@ -313,7 +313,9 @@ program
       for (const [deviceName, settings] of Object.entries(preset)) {
         const device = devices[deviceName];
         if (!device) {
-          console.error(`Device "${deviceName}" not found in preset "${presetName}"`);
+          console.error(
+            `Device "${deviceName}" not found in preset "${presetName}"`
+          );
           continue;
         }
 
