@@ -2,6 +2,7 @@
 
 CLI tool for controlling Govee lights.
 
+<img width="711" alt="govee-cli" src="https://github.com/user-attachments/assets/10769218-7eea-43cd-b489-d96ae9c6aa8a" />
 
 ## Installation
 
